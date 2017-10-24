@@ -1,4 +1,4 @@
-from twython import Twython
+from twython import Twython, TwythonError
 
 import os
 import sys
@@ -24,4 +24,12 @@ if ACCESS_TOKEN_SECRET is None:
     sys.exit("Error: Could not find " + ACCESS_TOKEN_SECRET_ENV + " in environment variables.")
 
 twitter_client = Twython(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-twitter_client.update_status(status="Hello Universe!")
+
+response = twitter_client.search(q="#seeit_kn")
+for tweet in response["statuses"]:
+    print("id = " + str(tweet["id"]) + "text = "+tweet["text"])
+    try:
+        if not tweet["text"].startswith("RT"):
+            twitter_client.retweet(id=tweet["id"])
+    except TwythonError as error:
+        print(error)
