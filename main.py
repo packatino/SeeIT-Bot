@@ -26,10 +26,18 @@ if ACCESS_TOKEN_SECRET is None:
 twitter_client = Twython(API_KEY, API_SECRET, ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
 response = twitter_client.search(q="#seeit_kn")
-for tweet in response["statuses"]:
-    print("id = " + str(tweet["id"]) + "text = "+tweet["text"])
+tweets = response["statuses"]
+print("Found", len(tweets), "tweets:")
+
+for tweet in tweets:
+    tweet_id = tweet["id"]
+    tweet_text = tweet["text"]
+    print(tweet_id, "= '" + tweet_text + "'")
+    if tweet_text.startswith("RT"):
+        print(" -> This is not the original tweet.")
+        continue
     try:
-        if not tweet["text"].startswith("RT"):
-            twitter_client.retweet(id=tweet["id"])
+        twitter_client.retweet(id=tweet_id)
+        print(" -> Retweeted.")
     except TwythonError as error:
-        print(error)
+        print(" -> Error:", error)
